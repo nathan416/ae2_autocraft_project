@@ -160,6 +160,6 @@ function autoCraft(autoTable)
                 status = nil
             end
         end
-        wait(20)
+        wait(100)
     end
 end
