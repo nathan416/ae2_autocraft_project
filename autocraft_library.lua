@@ -20,7 +20,7 @@
 
 local component = require("component")
 local me = component.me_controller
-local db = component.database
+--local db = component.database
 local sides = require("sides")
 local serialization = require("serialization")
 local computer = require("computer")
