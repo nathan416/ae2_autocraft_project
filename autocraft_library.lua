@@ -64,7 +64,7 @@ function meSearchCraftables(target) 			-- parameter is name of item you want to 
 		end
 	--print(item.getItemStack().name()) --debugging stuff
 	end
-	print("Error: That item isnt craftable")
+	print("Error: "..target.." isnt craftable")
 	return 0
 end
 
@@ -79,7 +79,7 @@ function meSearchCraftablesByLabel(target) 		-- parameter is name of item you wa
 		end
 	--print(item.getItemStack().name()) --debugging stuff
 	end
-	print("Error: That item isnt craftable")
+	print("Error: "..target.." isnt craftable")
 	return 0
 end
 
@@ -149,7 +149,7 @@ function autoCraft(autoTable)
         print(item.getItemStack().label)
     end
     local status
-    while true do
+    for i = 1, 10000 do
         local check, requestTable = checkStatus(status, autoTable, patterns)
         if check then
             for k,v in pairs(requestTable) do
