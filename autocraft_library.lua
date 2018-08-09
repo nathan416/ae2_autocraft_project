@@ -121,22 +121,9 @@ function checkStatus(status, autocrafTables, patternTable)
     return request, requestTable
 end
 
-function updateTime()															-- see wait()
-	local temp = computer.uptime()
-	temp = temp * 20
-	temp = math.floor(temp + .01)
-	return temp
-end
-
-function wait(tickDelay)
-	local time1 = updateTime()
-	local time2 = updateTime()
-	while(time2 < time1 + tickDelay)
-	do
-		event.push("randomEvent")
-		event.pull()
-		time2 = updateTime()
-	end
+function wait(n)
+    local t0 = os.clock()
+    while os.clock() - t0 <= n do end
 end
 
 function autoCraft(autoTable)
@@ -160,6 +147,7 @@ function autoCraft(autoTable)
                 status = nil
             end
         end
-        wait(100)
+	event.pull()
+	wait()
     end
 end
