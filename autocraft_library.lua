@@ -121,9 +121,11 @@ function checkStatus(status, autocrafTables, patternTable)
     return request, requestTable
 end
 
-function wait(n)
-    local t0 = os.clock()
-    while os.clock() - t0 <= n do end
+function wait(seconds)
+  local begin = os.time()
+  repeat
+    computer.pullSignal(0.05)
+  until os.time() - begin >= seconds
 end
 
 function autoCraft(autoTable)
@@ -147,7 +149,6 @@ function autoCraft(autoTable)
                 status = nil
             end
         end
-	event.pull()
 	wait(200)
     end
 end
