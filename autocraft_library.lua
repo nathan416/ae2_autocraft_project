@@ -148,6 +148,6 @@ function autoCraft(autoTable)
             end
         end
 	event.pull()
-	wait()
+	wait(200)
     end
 end
