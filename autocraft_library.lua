@@ -7,7 +7,7 @@
 --
 --    examppleTable = {"Certus Quartz Crystal" = 100, "example label" = 40}
 --
---	  These labels are case sensitive and must have corresponding crafting pattern in the system
+--	  These labels are case sensitive and must have corresponding crafting pattern in the system.
 --	  The number after the label is the amount that you want to keep in the system
 -- 4. on the next line type " autoCraft(examppleTable) "
 -- 5. run the file
@@ -26,61 +26,125 @@ local serialization = require("serialization")
 local computer = require("computer")
 local event = require("event")
 
-function meSearch(target) 						-- parameter is name of item you want to search.
-	local system = me.getItemsInNetwork()		-- returns the item table.
-												-- example: meSearch("minecraft:dirt")
-	for key,item in ipairs(system) do
+function getItems()	--Returns items in network
+	return me.getItemsInNetwork()
+
+function getCraftable()	--Returns item tables for craftable items?
+	return me.getCraftables()
+
+function searchDictForTargetItemName(dictionary, target) --Search a dictionary of items for an item with name matching target.
+	for key,item in ipairs(dictionary) do
 		if (item.name == target)
 		then
-			return(item)
+			return item
 		end
 	end
-	print("Error: That item isnt in the network")
-	return 0
-end
+	print('Error: Item '..target..' Not Found.')
+	return nil
 
-function meSearchByLabel(target) 				-- parameter is name of item you want to search.
-	local system = me.getItemsInNetwork()		-- returns the item table.
-												-- example: meSearch("minecraft:dirt")
-	for key,item in ipairs(system) do
+function searchDictForTargetItemLable(dictionary, target) --Search a dictionary of items for an item with lable matching target.
+	for key,item in ipairs(dictionary) do
 		if (item.label == target)
 		then
-			--print(item.label.." :: "..item.size)
-			return(item)
+			return item
 		end
 	end
-	print("Error: That item isnt in the network")
-	return 0
-end
+	print('Error: Item '..target..' Not Found.')
+	return nil
 
-function meSearchCraftables(target) 			-- parameter is name of item you want to search.
-	local craftables = me.getCraftables()		-- returns the item table.
-												-- example: meSearchCraftables("minecraft:dirt")
-	for key,item in ipairs(craftables) do
-		if (item.getItemStack().name == target)
-		then
-			--print(item.getItemStack().label.." :: "..item.getItemStack().size)
-			return(item)
-		end
-	--print(item.getItemStack().name()) --debugging stuff
-	end
-	print("Error: "..target.." isnt craftable")
-	return 0
-end
+--Unused old function
+--function meSearch(target) 			-- parameter is name of item you want to search.
+--	local system = me.getItemsInNetwork()	-- returns the item table.
+--						-- example: meSearch("minecraft:dirt")
+--	for key,item in ipairs(system) do
+--		if (item.name == target)
+--		then
+--			return(item)
+--		end
+--	end
+--	print("Error: That item isnt in the network")
+--	return 0
+--end
 
-function meSearchCraftablesByLabel(target) 		-- parameter is name of item you want to search.
-	local craftables = me.getCraftables()		-- returns the item table.
-												-- example: meSearchCraftables("minecraft:dirt")
-	for key,item in ipairs(craftables) do
-		if (item.getItemStack().label == target)
-		then
-			--print(item.getItemStack().label.." :: "..item.getItemStack().size)
-			return(item)
+--Unused new
+function meSearch(target)
+	searchDictForTargetItemName(getItems(), target)
+
+--Old version				
+--function meSearchCraftables(target) 		-- parameter is name of item you want to search.
+--	local craftables = me.getCraftables()	-- returns the item table.
+--						-- example: meSearchCraftables("minecraft:dirt")
+--	for key,item in ipairs(craftables) do
+--		if (item.getItemStack().name == target)
+--		then
+--			--print(item.getItemStack().label.." :: "..item.getItemStack().size)
+--			return(item)
+--		end
+--	--print(item.getItemStack().name()) --debugging stuff
+--	end
+--	print("Error: "..target.." isnt craftable")
+--	return 0
+--end
+
+--New version
+function meSearchCraftables(target)
+	return searchDictForTargetItemName(getCraftable(), target)
+
+--Old version				
+--function meSearchCraftablesByLabel(target) 	-- parameter is name of item you want to search.
+--	local craftables = me.getCraftables()	-- returns the item table.
+--						-- example: meSearchCraftables("minecraft:dirt")
+--	for key,item in ipairs(craftables) do
+--		if (item.getItemStack().label == target)
+--		then
+--			--print(item.getItemStack().label.." :: "..item.getItemStack().size)
+--			return(item)
+--		end
+--	--print(item.getItemStack().name()) --debugging stuff
+--	end
+--	print("Error: "..target.." isnt craftable")
+--	return 0
+--end
+
+--New version
+function meSearchCraftablesByLabel(target)
+	return searchDictForTargetItemLable(getCraftable(), target)
+
+--Old version of function
+--function meSearchByLabel(target) 		-- parameter is name of item you want to search.
+--	local system = me.getItemsInNetwork()	-- returns the item table.
+--						-- example: meSearch("minecraft:dirt")
+--	for key,item in ipairs(system) do
+--		if (item.label == target)
+--		then
+--			--print(item.label.." :: "..item.size)
+--			return(item)
+--		end
+--	end
+--	print("Error: That item isnt in the network")
+--	return 0
+--end
+
+--New version
+function meSearchByLabel(target)	-- Returns the item table of the item with given target name
+	return searchDictForTargetItemLable(getItems(), target)
+				
+function checkStatus(status, autocrafTables, patternTable)
+    local requestTable = {}
+    local request = false
+    for label,targetAmount in pairs(autocrafTables) do
+        local item = patternTable[label]	--this variable represents the crafting pattern not the item
+	local item2 = meSearchByLabel(label)	--this variable has the correct size data
+        if item then
+            if (item2.size < targetAmount) then
+		if not status or status.isDone() then
+                	requestTable[item] = (targetAmount - item2.size)
+                	request = true
 		end
-	--print(item.getItemStack().name()) --debugging stuff
-	end
-	print("Error: "..target.." isnt craftable")
-	return 0
+            end
+        end
+    end
+    return request, requestTable
 end
 
 function meAvailableCpus() 						-- sees if there are available cpus on the network
@@ -103,25 +167,8 @@ function meStartCraft(item, amount)			--starts the crafting of an item specified
 	return status
 end
 
-function checkStatus(status, autocrafTables, patternTable)
-    local requestTable = {}
-    local request = false
-    for label,targetAmount in pairs(autocrafTables) do
-        local item = patternTable[label]										--this variable represents the crafting pattern not the item
-		local item2 = meSearchByLabel(label)									--this variable has the correct size data
-        if item then
-            if (item2.size < targetAmount) then
-				if not status or status.isDone() then
-                	requestTable[item] = (targetAmount - item2.size)
-                	request = true
-				end
-            end
-        end
-    end
-    return request, requestTable
-end
 
-function updateTime()															-- see wait()
+function updateTime()	-- see wait()
 	local temp = computer.uptime()
 	temp = temp * 20
 	temp = math.floor(temp + .01)
